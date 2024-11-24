@@ -16,45 +16,60 @@ function App() {
       return
     }
 
-    wsRef.current = new WebSocket('ws://localhost:8000/ws')
+    try {
+      wsRef.current = new WebSocket('ws://localhost:8000/ws')
 
-    wsRef.current.onopen = () => {
-      setStatus('Connected to server')
-      setIsConnected(true)
-      if (reconnectTimeoutRef.current) {
-        clearTimeout(reconnectTimeoutRef.current)
-        reconnectTimeoutRef.current = null
-      }
-    }
-
-    wsRef.current.onmessage = (event) => {
-      const data = JSON.parse(event.data)
-      
-      if (data.type === 'status') {
-        setStatus(data.message)
-        if (data.message.includes('silence')) {
-          setSilenceDetected(true)
-          setTimeout(() => setSilenceDetected(false), 2000)
+      wsRef.current.onopen = () => {
+        console.log('WebSocket connected')
+        setStatus('Connected to server')
+        setIsConnected(true)
+        if (reconnectTimeoutRef.current) {
+          clearTimeout(reconnectTimeoutRef.current)
+          reconnectTimeoutRef.current = null
         }
-      } else if (data.type === 'analysis') {
-        setMessages(prev => [...prev, {
-          transcript: data.transcript,
-          analysis: JSON.parse(data.analysis.analysis),
-          timestamp: new Date().toLocaleTimeString()
-        }])
       }
-    }
 
-    wsRef.current.onclose = () => {
-      setStatus('Disconnected from server - Reconnecting...')
-      setIsConnected(false)
-      // Attempt to reconnect after 2 seconds
-      reconnectTimeoutRef.current = setTimeout(connectWebSocket, 2000)
-    }
+      wsRef.current.onmessage = (event) => {
+        try {
+          const data = JSON.parse(event.data)
+          console.log('Received message:', data)
+          
+          if (data.type === 'status') {
+            setStatus(data.message)
+            if (data.message.includes('silence')) {
+              setSilenceDetected(true)
+              setTimeout(() => setSilenceDetected(false), 2000)
+            }
+          } else if (data.type === 'analysis') {
+            setMessages(prev => [...prev, {
+              transcript: data.transcript,
+              analysis: JSON.parse(data.analysis.analysis),
+              timestamp: new Date().toLocaleTimeString()
+            }])
+          } else if (data.type === 'error') {
+            console.error('Server error:', data.message)
+            setStatus(`Error: ${data.message}`)
+          }
+        } catch (error) {
+          console.error('Error parsing message:', error)
+        }
+      }
 
-    wsRef.current.onerror = (error) => {
-      console.error('WebSocket error:', error)
-      setStatus('Connection error - Retrying...')
+      wsRef.current.onclose = (event) => {
+        console.log('WebSocket closed:', event)
+        setStatus('Disconnected from server - Reconnecting...')
+        setIsConnected(false)
+        // Attempt to reconnect after 2 seconds
+        reconnectTimeoutRef.current = setTimeout(connectWebSocket, 2000)
+      }
+
+      wsRef.current.onerror = (error) => {
+        console.error('WebSocket error:', error)
+        setStatus('Connection error - Retrying...')
+      }
+    } catch (error) {
+      console.error('Error creating WebSocket:', error)
+      setStatus('Failed to create WebSocket connection')
     }
   }
 
@@ -77,12 +92,17 @@ function App() {
       return
     }
 
-    if (!isRecording) {
-      wsRef.current.send(JSON.stringify({ action: 'start_recording' }))
-      setIsRecording(true)
-    } else {
-      wsRef.current.send(JSON.stringify({ action: 'stop_recording' }))
-      setIsRecording(false)
+    try {
+      if (!isRecording) {
+        wsRef.current.send(JSON.stringify({ action: 'start_recording' }))
+        setIsRecording(true)
+      } else {
+        wsRef.current.send(JSON.stringify({ action: 'stop_recording' }))
+        setIsRecording(false)
+      }
+    } catch (error) {
+      console.error('Error sending command:', error)
+      setStatus('Error sending command to server')
     }
   }
 
@@ -92,11 +112,16 @@ function App() {
       return
     }
 
-    setPrivacyEnabled(!privacyEnabled)
-    wsRef.current.send(JSON.stringify({ 
-      action: 'set_privacy',
-      enabled: !privacyEnabled 
-    }))
+    try {
+      setPrivacyEnabled(!privacyEnabled)
+      wsRef.current.send(JSON.stringify({ 
+        action: 'set_privacy',
+        enabled: !privacyEnabled 
+      }))
+    } catch (error) {
+      console.error('Error toggling privacy:', error)
+      setStatus('Error toggling privacy mode')
+    }
   }
 
   const copyToClipboard = (text) => {
@@ -107,6 +132,10 @@ function App() {
           el.classList.add('copied')
           setTimeout(() => el.classList.remove('copied'), 1000)
         }
+      })
+      .catch(error => {
+        console.error('Error copying to clipboard:', error)
+        setStatus('Error copying to clipboard')
       })
   }
 

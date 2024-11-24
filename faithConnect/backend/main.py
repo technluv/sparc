@@ -14,14 +14,21 @@ load_dotenv()
 
 app = FastAPI()
 
-# Configure CORS with WebSocket support
+# Configure CORS - updated origins to be more flexible for development
+origins = [
+    "http://localhost:5173",  # Vite default
+    "http://localhost:5174",  # Vite alternate
+    "http://127.0.0.1:5173",
+    "http://127.0.0.1:5174",
+]
+
+# Add CORS middleware before any routes
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://localhost:5174"],
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
-    allow_websockets=True,  # Explicitly allow WebSocket
 )
 
 # Create temp directory if it doesn't exist
