@@ -14,9 +14,12 @@ FaithConnect
 ├── Caching Layer
 │   ├── Local Cache
 │   └── API Response Cache
-└── Presentation Layer
-    ├── Web Interface
-    └── Results Display
+├── Presentation Layer
+│   ├── Web Interface
+│   └── Results Display
+└── Meeting Assistant Layer 
+   ├── Client Analysis Module 
+   └── Suggestion Generation Module
 ```
 
 ## Component Details

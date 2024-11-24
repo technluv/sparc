@@ -1,4 +1,4 @@
-p01 = {
+p01_improved = {
     # Possible Audio Format
     "aF1": {
         "format": "WAV (16-bit PCM, 44.1 kHz)",
@@ -16,9 +16,11 @@ p01 = {
         "features": [
             "Utilized for audio input in the absence of external microphones.",
             "Provides acceptable sound capture for speech transcription in controlled environments.",
-            "Integrated with Python application using the `pyaudio` library for audio recording."
+            "Integrated with Python application using the `PyAudio` library for audio recording.",
+            "Supports continuous audio capture after being enabled.",
+            "Allows for continuous listening until the user disables the function."
         ],
-        "references": ["pyaudio library documentation"]
+        "references": ["PyAudio library documentation"]
     },
 
     # Transcription API
@@ -28,7 +30,9 @@ p01 = {
             "Transcription API for converting speech to text.",
             "Cost: $0.006 per minute of audio.",
             "Supports WAV format for efficient processing.",
-            "Provides accurate transcription for a variety of accents and languages."
+            "Provides accurate transcription for a variety of accents and languages.",
+            "Handles continuous transcription updates as audio is captured.",
+            "Detects when speakers stop talking to trigger message sending."
         ],
         "references": ["Whisper API official documentation"]
     },
@@ -39,7 +43,12 @@ p01 = {
         "features": [
             "Processes the transcription output from Whisper API.",
             "Caching Mechanism: Uses Python's `functools.lru_cache` to store results temporarily and reduce redundant API calls.",
-            "Summarizes transcriptions, extracts actionable insights, or generates contextual responses."
+            "Summarizes transcriptions, extracts actionable insights, or generates contextual responses.",
+            "Supports continuous processing of updated transcripts.",
+            "Integrates with the chat screen to display updates in real-time.",
+            "Analyzes client conversations to identify key points, concerns, and requirements.",
+            "Generates suggested responses to client questions in real time to assist the user.",
+            "Provides analysis to help the user present company competencies effectively."
         ],
         "references": ["GPT-4o-mini pricing and features"]
     },
@@ -47,11 +56,18 @@ p01 = {
     # Workflow Description in the Service Website
     "workflow": {
         "steps": [
-            "1. `ad1` (Laptop's Built-in Microphone) captures audio in real time.",
-            "2. The audio is converted to `aF1` (WAV format) on the local machine for efficient local caching.",
-            "3. The WAV audio file is sent to `ta1` (OpenAI Whisper API) for transcription.",
-            "4. The transcription output is processed through `ai1` (GPT-4o-mini) for actionable insights.",
-            "5. Final output is displayed on the web interface in a user-friendly format."
+            "1. User enables continuous listening via the application interface.",
+            "2. `ad1` (Laptop's Built-in Microphone) captures audio continuously in real time.",
+            "3. The audio is converted to `aF1` (WAV format) on the local machine for efficient local caching.",
+            "4. The WAV audio stream is sent to `ta1` (OpenAI Whisper API) continuously for transcription.",
+            "5. The transcription output is updated continuously and displayed on the chat screen.",
+            "6. When speakers stop talking, the application detects silence and processes the accumulated message.",
+            "7. The transcription output is processed through `ai1` (GPT-4o-mini) for actionable insights:",
+            "   - Analyzes client's statements to identify key topics and concerns.",
+            "   - Generates suggested responses or talking points for the user.",
+            "   - Provides summaries to help the user represent themselves or their company effectively.",
+            "8. Final output, including suggested responses and analysis, is displayed on the user's interface in a user-friendly format.",
+            "9. The process continues, updating the transcript and providing new insights, until the user disables continuous listening."
         ]
     },
 
@@ -69,8 +85,9 @@ p01 = {
         "description": "Implement caching to optimize API usage and reduce costs.",
         "implementation": [
             "Use `functools.lru_cache` for caching responses from the GPT-4o-mini model.",
-            "Store frequently accessed transcriptions locally with a defined expiration time.",
-            "Enable retry logic for API communication to handle transient errors gracefully."
+            "Store frequently accessed transcriptions and analyses locally with a defined expiration time.",
+            "Enable retry logic for API communication to handle transient errors gracefully.",
+            "Implement buffering of audio data to allow for continuous transcription without overwhelming the API."
         ]
     },
 
@@ -84,5 +101,31 @@ p01 = {
                 "Ensure the API key is not hardcoded in the application for security."
             ]
         }
+    },
+
+    # Continuous Listening Feature
+    "continuous_listening": {
+        "description": "Enables the application to listen continuously after being enabled, send messages when speakers stop, and continuously update the transcript chat screen until disabled.",
+        "implementation": [
+            "Implement Voice Activity Detection (VAD) to detect when speakers start and stop talking.",
+            "Use threading or asynchronous programming to handle continuous audio capture and processing without blocking the user interface.",
+            "Update the chat screen in real time with the latest transcriptions.",
+            "When silence is detected for a predefined duration (e.g., 2 seconds), consider the utterance complete and send the message for processing.",
+            "Provide a user interface control to enable and disable continuous listening.",
+            "Display AI-generated suggestions and analyses in a dedicated area of the interface for easy reference during meetings."
+        ]
+    },
+
+    # Meeting Assistant Feature
+    "meeting_assistant": {
+        "description": "Enhances the application to function as an AI assistant during meetings, helping the user to answer client questions and analyze client statements to effectively represent the user or their company.",
+        "implementation": [
+            "Utilize the AI Processing API (`ai1`) to analyze transcriptions for key points, questions, and concerns raised by the client.",
+            "Generate real-time suggested responses or talking points for the user to address client queries effectively.",
+            "Provide analysis of the client's statements to help the user understand client needs and tailor responses accordingly.",
+            "Ensure that the AI assistant's suggestions are concise, relevant, and professional.",
+            "Integrate a mechanism for the user to quickly review and select suggested responses during the meeting.",
+            "Implement privacy and security measures to ensure that meeting content and AI suggestions are kept confidential."
+        ]
     }
 }
