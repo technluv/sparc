@@ -1,105 +1,146 @@
-# FaithConnect Specification
+# FaithConnect Technical Specification
 
-## Objective
-Develop a real-time audio transcription and AI processing system for faith-based content using OpenAI's APIs.
+## Audio Format Specification
+```json
+{
+    "aF1": {
+        "format": "WAV (16-bit PCM, 44.1 kHz)",
+        "reasons": [
+            "Uncompressed, high-quality audio suitable for accurate transcription.",
+            "Broad compatibility with transcription APIs like OpenAI Whisper API.",
+            "Standard format for audio processing in Python applications."
+        ],
+        "official_guidelines": "WAV format compatibility verified for OpenAI Whisper API."
+    }
+}
+```
 
-## Research and Analysis
-- Evaluated audio formats and transcription APIs
-- Researched caching mechanisms for API optimization
-- Analyzed security requirements for API key management
-- Investigated microphone integration options
+## Audio Device Specification
+```json
+{
+    "ad1": {
+        "device": "Laptop's Built-in Microphone",
+        "features": [
+            "Utilized for audio input in the absence of external microphones.",
+            "Provides acceptable sound capture for speech transcription in controlled environments.",
+            "Integrated with Python application using the `PyAudio` library for audio recording.",
+            "Supports continuous audio capture after being enabled.",
+            "Allows for continuous listening until the user disables the function."
+        ],
+        "references": ["PyAudio library documentation"]
+    }
+}
+```
 
-## Project Overview
+## API Specifications
 
-### Context
-FaithConnect is a system designed to capture, transcribe, and process audio content in real-time, utilizing OpenAI's Whisper API for transcription and GPT-4o-mini for content processing.
+### Transcription API
+```json
+{
+    "ta1": {
+        "api": "OpenAI Whisper API",
+        "features": [
+            "Transcription API for converting speech to text.",
+            "Cost: $0.006 per minute of audio.",
+            "Supports WAV format for efficient processing.",
+            "Provides accurate transcription for a variety of accents and languages.",
+            "Handles continuous transcription updates as audio is captured.",
+            "Detects when speakers stop talking to trigger message sending."
+        ],
+        "references": ["Whisper API official documentation"]
+    }
+}
+```
 
-### Target Audience
-- Faith-based organizations
-- Religious speakers and presenters
-- Content creators in religious contexts
-- Congregation members seeking transcribed content
+### AI Processing API
+```json
+{
+    "ai1": {
+        "api": "OpenAI GPT-4o-mini with Caching",
+        "features": [
+            "Processes the transcription output from Whisper API.",
+            "Caching Mechanism: Uses Python's `functools.lru_cache` to store results temporarily.",
+            "Summarizes transcriptions, extracts actionable insights, and generates responses.",
+            "Supports continuous processing of updated transcripts.",
+            "Integrates with the chat screen to display updates in real-time.",
+            "Analyzes client conversations for key points, concerns, and requirements.",
+            "Generates suggested responses to client questions in real time.",
+            "Provides analysis to help present company competencies effectively."
+        ],
+        "references": ["GPT-4o-mini pricing and features"]
+    }
+}
+```
 
-## Functional Requirements
+## System Architecture
 
-### Audio Capture
-- Support for WAV format (16-bit PCM, 44.1 kHz)
-- Integration with built-in laptop microphone
-- Real-time audio recording capabilities
-- Audio quality validation
+```
+FaithConnect
+├── Audio Capture Layer
+│   ├── Microphone Interface
+│   └── Audio Format Converter
+├── Processing Layer
+│   ├── Transcription Service
+│   └── AI Processing Engine
+├── Caching Layer
+│   ├── Local Cache
+│   └── API Response Cache
+├── Presentation Layer
+│   ├── Web Interface
+│   └── Results Display
+└── Meeting Assistant Layer 
+    ├── Client Analysis Module 
+    └── Suggestion Generation Module
+```
 
-### Transcription Service
-- Integration with OpenAI Whisper API
-- Support for multiple accents and languages
-- Cost-effective processing ($0.006 per minute)
-- Error handling and retry logic
+## Core Features
 
-### AI Processing
-- Integration with GPT-4o-mini
-- Caching mechanism using functools.lru_cache
-- Content summarization and insight extraction
-- Contextual response generation
+### Continuous Listening
+- Voice Activity Detection (VAD) for speaker detection
+- Asynchronous audio capture and processing
+- Real-time transcript updates
+- Silence detection (2-second threshold)
+- User interface controls for enable/disable
+- Real-time AI suggestions display
 
-### Security
-- Secure API key management
-- Environment variable configuration
-- Secrets Manager integration
-- Access control implementation
-
-## Non-Functional Requirements
-
-### Performance
-- Real-time audio processing
-- Efficient caching system
-- Optimized API usage
-- Response time optimization
-
-### Security
-- Secure API key storage
-- Environment variable protection
-- Data encryption
-- Access control mechanisms
-
-### Scalability
-- Efficient caching system
-- API usage optimization
-- Resource management
-- Error handling mechanisms
-
-## Technical Constraints
-
-### Audio Format
-- WAV (16-bit PCM, 44.1 kHz) exclusively
-- No compression allowed
-- Standard sampling rate required
-- Format validation implementation
-
-### API Requirements
-- OpenAI Whisper API for transcription
-- GPT-4o-mini for processing
-- API version lock as of November 24, 2024
-- Mandatory error handling for outdated models
+### Meeting Assistant
+- Real-time client statement analysis
+- Suggested response generation
+- Client needs analysis
+- Professional response formatting
+- Quick response selection interface
+- Privacy and security measures
 
 ### Caching System
-- Implementation using functools.lru_cache
-- Local storage for transcriptions
-- Defined cache expiration times
-- Retry logic for API failures
+- Local response caching using `functools.lru_cache`
+- Temporary storage for transcriptions and analyses
+- Retry logic for API communication
+- Audio data buffering for continuous transcription
 
-## Assumptions
-- Stable internet connection available
-- Access to OpenAI API services
-- Sufficient system resources
-- Basic audio input capabilities
+## Technical Requirements
 
-## Dependencies
-- OpenAI API access
-- Python runtime environment
-- Audio processing libraries
-- Web interface components
+### API Configuration
+- Secure storage of OpenAI API key in environment variables
+- Access via `os.environ['OPENAI_API_KEY']`
+- No hardcoded API keys in application code
 
-## Security Considerations
-- API key protection
-- Data transmission security
-- Access control implementation
-- Environment variable management
+### Version Lock
+- GPT-4o-mini exclusively
+- Pre-2024 LLMs raise "Knowledge cutoff" error
+- No component substitution without authorization
+- Missing components trigger "Unknown Device Error"
+
+## Workflow Process
+
+1. User enables continuous listening
+2. Audio capture via built-in microphone
+3. WAV format conversion
+4. Continuous Whisper API transcription
+5. Real-time chat screen updates
+6. Silence detection triggers message processing
+7. GPT-4o-mini analysis for insights:
+   - Topic and concern identification
+   - Response suggestion generation
+   - Summary and representation assistance
+8. User interface display updates
+9. Process continues until manually disabled
