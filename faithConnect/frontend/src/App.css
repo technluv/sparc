@@ -27,6 +27,16 @@ h1 {
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  background-color: #f8f9fa;
+  transition: all 0.3s ease;
+}
+
+.status.disconnected {
+  color: #dc3545;
+  background-color: #f8d7da;
+  animation: pulse 2s infinite;
 }
 
 .silence-indicator {
@@ -50,6 +60,7 @@ h1 {
   border-radius: 12px;
   background-color: #e9ecef;
   color: #6c757d;
+  transition: all 0.3s ease;
 }
 
 .indicator.active {
@@ -75,14 +86,25 @@ button {
   transition: all 0.2s;
 }
 
-button:hover {
+button:hover:not(:disabled) {
   background-color: #0056b3;
   transform: translateY(-1px);
+}
+
+button:disabled {
+  background-color: #e9ecef;
+  color: #6c757d;
+  cursor: not-allowed;
+  transform: none;
 }
 
 button.recording {
   background-color: #dc3545;
   animation: pulse 2s infinite;
+}
+
+button.recording:disabled {
+  animation: none;
 }
 
 .privacy-toggle {
@@ -91,6 +113,10 @@ button.recording {
 
 .privacy-toggle.enabled {
   background-color: #28a745;
+}
+
+.privacy-toggle:disabled {
+  background-color: #e9ecef;
 }
 
 @keyframes pulse {
@@ -121,6 +147,11 @@ button.recording {
   border-radius: 8px;
   padding: 1.5rem;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease;
+}
+
+.message:hover {
+  transform: translateY(-2px);
 }
 
 .message-header {
@@ -132,6 +163,9 @@ button.recording {
 .timestamp {
   color: #6c757d;
   font-size: 0.9rem;
+  background-color: #e9ecef;
+  padding: 0.2rem 0.5rem;
+  border-radius: 12px;
 }
 
 .transcript {
@@ -139,6 +173,7 @@ button.recording {
   padding: 1rem;
   background-color: white;
   border-radius: 4px;
+  border-left: 4px solid #007bff;
 }
 
 .transcript h3 {
@@ -166,6 +201,18 @@ button.recording {
   padding: 1rem;
   background-color: white;
   border-radius: 4px;
+}
+
+.topics {
+  border-left: 4px solid #28a745;
+}
+
+.suggestions {
+  border-left: 4px solid #ffc107;
+}
+
+.insights {
+  border-left: 4px solid #17a2b8;
 }
 
 .quick-responses {

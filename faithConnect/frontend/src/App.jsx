@@ -4,17 +4,27 @@ import './App.css'
 function App() {
   const [isRecording, setIsRecording] = useState(false)
   const [messages, setMessages] = useState([])
-  const [status, setStatus] = useState('')
+  const [status, setStatus] = useState('Connecting...')
   const [silenceDetected, setSilenceDetected] = useState(false)
   const [privacyEnabled, setPrivacyEnabled] = useState(true)
+  const [isConnected, setIsConnected] = useState(false)
   const wsRef = useRef(null)
+  const reconnectTimeoutRef = useRef(null)
 
-  useEffect(() => {
-    // Initialize WebSocket connection
+  const connectWebSocket = () => {
+    if (wsRef.current?.readyState === WebSocket.OPEN) {
+      return
+    }
+
     wsRef.current = new WebSocket('ws://localhost:8000/ws')
 
     wsRef.current.onopen = () => {
       setStatus('Connected to server')
+      setIsConnected(true)
+      if (reconnectTimeoutRef.current) {
+        clearTimeout(reconnectTimeoutRef.current)
+        reconnectTimeoutRef.current = null
+      }
     }
 
     wsRef.current.onmessage = (event) => {
@@ -36,17 +46,37 @@ function App() {
     }
 
     wsRef.current.onclose = () => {
-      setStatus('Disconnected from server')
+      setStatus('Disconnected from server - Reconnecting...')
+      setIsConnected(false)
+      // Attempt to reconnect after 2 seconds
+      reconnectTimeoutRef.current = setTimeout(connectWebSocket, 2000)
     }
+
+    wsRef.current.onerror = (error) => {
+      console.error('WebSocket error:', error)
+      setStatus('Connection error - Retrying...')
+    }
+  }
+
+  useEffect(() => {
+    connectWebSocket()
 
     return () => {
       if (wsRef.current) {
         wsRef.current.close()
       }
+      if (reconnectTimeoutRef.current) {
+        clearTimeout(reconnectTimeoutRef.current)
+      }
     }
   }, [])
 
   const toggleRecording = () => {
+    if (!isConnected) {
+      setStatus('Cannot start recording - Not connected to server')
+      return
+    }
+
     if (!isRecording) {
       wsRef.current.send(JSON.stringify({ action: 'start_recording' }))
       setIsRecording(true)
@@ -57,6 +87,11 @@ function App() {
   }
 
   const togglePrivacy = () => {
+    if (!isConnected) {
+      setStatus('Cannot toggle privacy - Not connected to server')
+      return
+    }
+
     setPrivacyEnabled(!privacyEnabled)
     wsRef.current.send(JSON.stringify({ 
       action: 'set_privacy',
@@ -67,7 +102,6 @@ function App() {
   const copyToClipboard = (text) => {
     navigator.clipboard.writeText(text)
       .then(() => {
-        // Visual feedback could be added here
         const el = document.activeElement
         if (el) {
           el.classList.add('copied')
@@ -81,7 +115,7 @@ function App() {
       <header>
         <h1>FaithConnect Meeting Assistant</h1>
         <div className="status-container">
-          <p className="status">
+          <p className={`status ${!isConnected ? 'disconnected' : ''}`}>
             {status}
             {silenceDetected && <span className="silence-indicator">Silence Detected</span>}
           </p>
@@ -92,6 +126,9 @@ function App() {
             <div className={`indicator ${privacyEnabled ? 'active' : ''}`}>
               Privacy Mode
             </div>
+            <div className={`indicator ${isConnected ? 'active' : ''}`}>
+              Server Connection
+            </div>
           </div>
         </div>
       </header>
@@ -99,13 +136,15 @@ function App() {
       <div className="controls">
         <button 
           onClick={toggleRecording}
-          className={isRecording ? 'recording' : ''}
+          className={`${isRecording ? 'recording' : ''} ${!isConnected ? 'disabled' : ''}`}
+          disabled={!isConnected}
         >
           {isRecording ? 'Stop Recording' : 'Start Recording'}
         </button>
         <button 
           onClick={togglePrivacy}
-          className={`privacy-toggle ${privacyEnabled ? 'enabled' : ''}`}
+          className={`privacy-toggle ${privacyEnabled ? 'enabled' : ''} ${!isConnected ? 'disabled' : ''}`}
+          disabled={!isConnected}
         >
           {privacyEnabled ? 'Privacy Mode On' : 'Privacy Mode Off'}
         </button>
