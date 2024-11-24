@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ENGINUS - Solar Power Plant Project Management</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .section {
+            margin-bottom: 30px;
+        }
+        h2 {
+            color: #34495e;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+        }
+        .endpoint {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+        .endpoint code {
+            background-color: #e9ecef;
+            padding: 2px 6px;
+            border-radius: 3px;
+        }
+        .method {
+            font-weight: bold;
+            color: #2980b9;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>ENGINUS</h1>
+        <div class="section">
+            <h2>About</h2>
+            <p>ENGINUS is a comprehensive Solar Power Plant Project Management System designed to facilitate the monitoring of stakeholders in GES projects.</p>
+        </div>
+        
+        <div class="section">
+            <h2>Available Endpoints</h2>
+            <div class="endpoint">
+                <p><span class="method">GET</span> <code>/api</code> - API Welcome endpoint</p>
+            </div>
+            <div class="endpoint">
+                <p><span class="method">GET</span> <code>/health</code> - Health check endpoint</p>
+            </div>
+            <div class="endpoint">
+                <p><span class="method">GET</span> <code>/api-docs</code> - API Documentation</p>
+            </div>
+            <div class="endpoint">
+                <p><span class="method">GET</span> <code>/api/projects</code> - List all projects</p>
+            </div>
+            <div class="endpoint">
+                <p><span class="method">POST</span> <code>/api/projects</code> - Create a new project</p>
+            </div>
+            <div class="endpoint">
+                <p><span class="method">GET</span> <code>/api/documents</code> - List all documents</p>
+            </div>
+            <div class="endpoint">
+                <p><span class="method">POST</span> <code>/api/documents</code> - Upload a new document</p>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Documentation</h2>
+            <p>For detailed API documentation, visit <a href="/api-docs">/api-docs</a></p>
+        </div>
+    </div>
+</body>
+</html>
