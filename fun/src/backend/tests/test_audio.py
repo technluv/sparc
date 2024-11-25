@@ -77,16 +77,17 @@ def test_silence_detection():
     speech_audio = create_test_wav(is_silence=False)
     assert detect_silence(speech_audio) == False
 
-@pytest.mark.asyncio
-async def test_process_audio(mock_whisper):
+def test_process_audio():
     """Test audio processing function"""
-    # Configure mock
-    mock_model = mock_whisper.return_value
+    # Create a mock model
+    mock_model = MagicMock()
     mock_model.transcribe.return_value = {"text": "Test transcription"}
     
     # Test with speech audio
     audio_data = create_test_wav(is_silence=False)
     text, success = process_audio(audio_data, model=mock_model)
+    
+    # Verify the result
     assert success == True
     assert text == "Test transcription"
     

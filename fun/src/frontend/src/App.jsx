@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import './App.css'
 
 function App() {
@@ -7,7 +7,7 @@ function App() {
   const [error, setError] = useState(null)
   const [status, setStatus] = useState('disconnected')
   const [debug, setDebug] = useState([])
-  
+
   const websocket = useRef(null)
   const mediaRecorder = useRef(null)
   const audioChunks = useRef([])
@@ -26,6 +26,7 @@ function App() {
     }
 
     addDebugMessage('Connecting to WebSocket...')
+    // Connect directly to the backend WebSocket server
     websocket.current = new WebSocket('ws://localhost:8000/ws')
 
     websocket.current.onopen = () => {
@@ -86,22 +87,22 @@ function App() {
           sampleRate: 44100
         }
       })
-      
+
       connectWebSocket()
-      
+
       mediaRecorder.current = new MediaRecorder(stream, {
         mimeType: 'audio/webm'
       })
-      
+
       mediaRecorder.current.ondataavailable = async (event) => {
         if (event.data.size > 0) {
           audioChunks.current.push(event.data)
           addDebugMessage('Audio chunk received')
-          
+
           // Convert to WAV and send
           const audioBlob = new Blob(audioChunks.current, { type: 'audio/webm' })
           const reader = new FileReader()
-          
+
           reader.onloadend = () => {
             if (websocket.current?.readyState === WebSocket.OPEN) {
               addDebugMessage('Sending audio data')
@@ -112,17 +113,17 @@ function App() {
               addDebugMessage(`WebSocket not ready: ${websocket.current?.readyState}`)
             }
           }
-          
+
           reader.readAsDataURL(audioBlob)
           audioChunks.current = []
         }
       }
-      
+
       mediaRecorder.current.start(1000) // Capture audio every second
       addDebugMessage('Started recording')
       setIsListening(true)
       setError(null)
-      
+
     } catch (err) {
       const errorMsg = `Error accessing microphone: ${err.message}`
       addDebugMessage(errorMsg)
