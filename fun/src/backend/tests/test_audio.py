@@ -86,7 +86,7 @@ async def test_process_audio(mock_whisper):
     
     # Test with speech audio
     audio_data = create_test_wav(is_silence=False)
-    text, success = process_audio(audio_data)
+    text, success = process_audio(audio_data, model=mock_model)
     assert success == True
     assert text == "Test transcription"
     

@@ -98,15 +98,19 @@ def save_base64_audio(audio_data: str) -> str:
         logger.error(f"Error saving audio data: {str(e)}")
         raise
 
-def process_audio(audio_data: str) -> Tuple[str, bool]:
+def process_audio(audio_data: str, model=None) -> Tuple[str, bool]:
     """Process audio data and return transcription"""
     try:
         logger.info("Processing audio data")
         temp_path = save_base64_audio(audio_data)
         
+        # Use the provided model or default to the global whisper_model
+        if model is None:
+            model = whisper_model
+        
         # Transcribe audio
         logger.info("Transcribing audio with Whisper")
-        result = whisper_model.transcribe(temp_path)
+        result = model.transcribe(temp_path)
         
         # Clean up
         os.unlink(temp_path)
