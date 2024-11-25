@@ -1,101 +1,160 @@
 # Architecture
 
-## Overview
-This document outlines the architectural design of the Fun project, following SPARC framework principles.
+## System Overview
+The system implements a real-time audio processing and analysis pipeline using a WebSocket-based architecture for continuous communication between frontend and backend components.
 
-## System Components
+## Core Components
 
-### Backend (FastAPI)
-- RESTful API service
-- Python-based backend
-- FastAPI framework for high performance
-- Modular service architecture
-
-### Frontend (React)
-- Single Page Application (SPA)
-- React.js framework
-- Component-based architecture
-- Responsive design
-
-## Component Interactions
+### Frontend Architecture
 ```
-[Frontend (React)] <--HTTP/REST--> [Backend (FastAPI)]
+[Browser Audio Capture] -> [WebSocket Client] -> [React UI]
+                                             <- [State Management]
+```
+
+#### Key Components
+1. Audio Capture Module
+   - Uses MediaRecorder API
+   - Handles continuous audio streaming
+   - Implements chunk-based processing
+   - Manages WAV format conversion
+
+2. WebSocket Client
+   - Maintains persistent connection
+   - Handles binary data transmission
+   - Manages connection lifecycle
+   - Implements error recovery
+
+3. React UI
+   - Real-time transcription display
+   - Analysis results presentation
+   - Audio control interface
+   - Error handling and feedback
+
+### Backend Architecture
+```
+[WebSocket Server] -> [Audio Processor] -> [Whisper API]
+                  -> [Analysis Engine] -> [GPT-4 API]
+                  -> [Result Handler] -> [WebSocket Response]
+```
+
+#### Key Components
+1. WebSocket Server
+   - Handles client connections
+   - Manages audio stream
+   - Coordinates processing pipeline
+   - Implements error handling
+
+2. Audio Processor
+   - WAV format validation
+   - Silence detection
+   - Audio chunk management
+   - Stream optimization
+
+3. AI Integration
+   - Whisper API for transcription
+   - GPT-4 for text analysis
+   - Response generation
+   - Error handling and retry logic
+
+## Data Flow
+
+### Audio Capture Flow
+```
+1. User Initiates -> 2. Browser Mic Access -> 3. Audio Chunking -> 4. WAV Conversion
+```
+
+### Processing Flow
+```
+1. WebSocket Receipt -> 2. Silence Check -> 3. Transcription -> 4. Analysis -> 5. Response
+```
+
+### Response Flow
+```
+1. Result Formation -> 2. WebSocket Transmission -> 3. UI Update
 ```
 
 ## Technical Stack
 
-### Backend
-- Python 3.8+
-- FastAPI framework
-- Uvicorn ASGI server
-- Python-dotenv for configuration
-- Pytest for testing
-
 ### Frontend
-- Node.js 14+
 - React 18
-- Vite build tool
-- Axios for HTTP requests
-- Testing Library for React
-
-## Design Patterns
+- WebSocket API
+- MediaRecorder API
+- Web Audio API
 
 ### Backend
-- Dependency Injection
-- Repository Pattern
-- Service Layer Pattern
-- Factory Pattern
+- FastAPI
+- WebSockets
+- Whisper API
+- GPT-4 API
+- NumPy/SoundFile for audio processing
 
-### Frontend
-- Component-Based Architecture
-- Container/Presenter Pattern
-- Custom Hook Pattern
-- Context API for state management
+## Security Measures
+1. Connection Security
+   - Secure WebSocket (WSS)
+   - CORS configuration
+   - Input validation
 
-## Security Considerations
-- CORS configuration
-- Input validation
-- Request rate limiting
-- Secure headers implementation
+2. Data Security
+   - Audio data encryption
+   - API key protection
+   - Secure error handling
 
-## Performance Optimization
-- Backend async operations
-- Frontend code splitting
-- Static asset optimization
-- Caching strategies
+## Performance Optimizations
+1. Audio Processing
+   - Chunk-based streaming
+   - Silence detection
+   - Memory management
 
-## Scalability
-- Stateless architecture
-- Horizontal scaling capability
-- Load balancing ready
-- Microservices-friendly design
+2. Network Optimization
+   - Binary data transmission
+   - Connection pooling
+   - Error recovery
 
-## Development Environment
-- Virtual environment for Python
-- Node.js environment for frontend
-- Development server configurations
-- Hot-reloading enabled
+3. UI Performance
+   - State management
+   - Render optimization
+   - Error boundaries
 
-## Testing Strategy
-- Unit testing
-- Integration testing
-- End-to-end testing
-- Performance testing
+## Scalability Considerations
+1. Backend Scaling
+   - Stateless design
+   - Connection management
+   - Load balancing ready
 
-## Deployment Considerations
-- Docker containerization ready
-- Environment-specific configurations
-- CI/CD pipeline compatible
-- Health check endpoints
+2. Processing Pipeline
+   - Parallel processing
+   - Queue management
+   - Resource allocation
 
 ## Monitoring and Logging
-- Application logging
-- Performance metrics
-- Error tracking
-- Usage analytics
+1. System Health
+   - Connection status
+   - Processing metrics
+   - Error tracking
+
+2. Performance Metrics
+   - Response times
+   - Audio quality
+   - API latency
+
+## Error Handling
+1. Connection Errors
+   - Automatic reconnection
+   - State recovery
+   - User feedback
+
+2. Processing Errors
+   - Graceful degradation
+   - Error reporting
+   - Recovery mechanisms
 
 ## Future Considerations
-- Microservices migration path
-- Caching implementation
-- Message queue integration
-- Real-time features support
+1. Technical Enhancements
+   - Custom AI models
+   - Advanced audio processing
+   - Performance optimization
+
+2. Feature Extensions
+   - Multi-language support
+   - Custom analysis rules
+   - Enhanced UI features
